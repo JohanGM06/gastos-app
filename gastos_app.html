@@ -230,8 +230,11 @@ async function borrar(fila, desc, itemEl) {
 
 function renderizar() {
   const total = gastos.reduce((s, g) => s + g.monto, 0);
-  const sobrante = sobrasteBase - total;
-  const pct = sobrasteBase > 0 ? Math.min(Math.round(total / sobrasteBase * 100), 100) : 0;
+  // sobrasteBase ya viene con los gastos diarios restados desde la hoja
+  const sobrante = sobrasteBase;
+  // Para el % usamos sobrasteBase + total para reconstruir el presupuesto original
+  const presupuesto = sobrasteBase + total;
+  const pct = presupuesto > 0 ? Math.min(Math.round(total / presupuesto * 100), 100) : 0;
 
   // Mes del que viene el dinero (el anterior)
   const idx = MESES.indexOf(mesActual);
@@ -246,6 +249,7 @@ function renderizar() {
   const bar = document.getElementById('bar');
   bar.style.width = pct + '%';
   bar.className = 'bar-fill' + (pct >= 100 ? ' over' : pct >= 75 ? ' warn' : '');
+
 
   const lista = document.getElementById('lista');
   if (!gastos.length) { lista.innerHTML = '<div class="empty">Sin gastos este mes</div>'; return; }
