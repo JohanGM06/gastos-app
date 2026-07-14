@@ -1,271 +1,777 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Gastos">
-<title>Gastos Diarios 2026</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a1a; min-height: 100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gastos">
+  <title>Gastos Diarios 2026</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-.header { background: #1a56a0; color: white; padding: 16px 16px 14px; position: sticky; top: 0; z-index: 10; }
-.header h1 { font-size: 18px; font-weight: 600; }
-.header p { font-size: 12px; opacity: 0.75; margin-top: 3px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
 
-.month-bar { background: white; border-bottom: 1px solid #e5e5e5; padding: 10px 16px; display: flex; align-items: center; gap: 8px; position: sticky; top: 68px; z-index: 9; }
-.month-bar label { font-size: 13px; color: #666; white-space: nowrap; }
-.month-bar select { flex: 1; font-size: 15px; padding: 7px 10px; border: 1px solid #d0d0d0; border-radius: 8px; background: white; color: #1a1a1a; -webkit-appearance: none; }
+    .header {
+      background: #1a56a0;
+      color: white;
+      padding: 16px 16px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-.summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px 0; }
-.stat { background: white; border-radius: 12px; padding: 13px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
-.stat-label { font-size: 11px; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
-.stat-value { font-size: 20px; font-weight: 700; }
-.stat-value.red { color: #d93025; }
-.stat-value.green { color: #188038; }
-.stat-sub { font-size: 11px; color: #aaa; margin-top: 3px; }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
 
-.progress-card { background: white; border-radius: 12px; padding: 13px 14px; margin: 10px 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
-.progress-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
-.progress-top span { font-size: 12px; color: #666; }
-.progress-top strong { font-size: 12px; color: #1a1a1a; }
-.bar-bg { background: #eee; border-radius: 99px; height: 7px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 99px; background: #1a56a0; transition: width 0.4s; }
-.bar-fill.warn { background: #e8920a; }
-.bar-fill.over { background: #d93025; }
+    .header p {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-top: 3px;
+    }
 
-.form-card { background: white; border-radius: 12px; padding: 14px 16px; margin: 10px 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
-.form-title { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 10px; }
-.inp-row { display: flex; gap: 8px; margin-bottom: 10px; }
-.inp-wrap { flex: 1; }
-.inp-wrap.short { flex: 0 0 118px; }
-.inp-wrap label { display: block; font-size: 11px; color: #888; margin-bottom: 4px; }
-.inp-wrap input { width: 100%; padding: 11px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; background: #fafafa; color: #1a1a1a; }
-.inp-wrap input:focus { outline: none; border-color: #1a56a0; background: white; }
-.btn-save { width: 100%; padding: 13px; background: #1a56a0; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
-.btn-save:active { background: #154080; }
-.btn-save:disabled { background: #aac4e0; }
-.hint { font-size: 11px; color: #aaa; margin-top: 8px; text-align: center; }
+    .month-bar {
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: sticky;
+      top: 68px;
+      z-index: 9;
+    }
 
-.list-card { background: white; border-radius: 12px; margin: 10px 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); overflow: hidden; }
-.list-header { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid #f0f0f0; }
-.list-header span { font-size: 13px; font-weight: 600; color: #444; }
-.btn-refresh { font-size: 12px; color: #1a56a0; background: none; border: none; cursor: pointer; font-weight: 600; padding: 4px 8px; }
-.empty { padding: 28px; text-align: center; color: #bbb; font-size: 14px; }
-.gasto-item { display: flex; align-items: center; padding: 11px 14px; border-bottom: 1px solid #f5f5f5; transition: opacity 0.2s; }
-.gasto-item:last-child { border-bottom: none; }
-.gasto-item.borrando { opacity: 0.35; }
-.gasto-info { flex: 1; }
-.gasto-desc { font-size: 14px; color: #1a1a1a; }
-.gasto-monto { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-right: 10px; white-space: nowrap; }
-.btn-del { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; padding: 2px 6px; line-height: 1; border-radius: 50%; }
-.btn-del:active { color: #d93025; }
+    .month-bar label {
+      font-size: 13px;
+      color: #666;
+      white-space: nowrap;
+    }
 
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: #222; color: white; padding: 10px 22px; border-radius: 99px; font-size: 14px; z-index: 100; transition: transform 0.3s; white-space: nowrap; pointer-events: none; }
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.ok { background: #188038; }
-.toast.err { background: #d93025; }
-</style>
+    .month-bar select {
+      flex: 1;
+      font-size: 15px;
+      padding: 7px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      background: white;
+      color: #1a1a1a;
+      -webkit-appearance: none;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 14px 16px 0;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 12px;
+      padding: 13px 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .stat-value.red {
+      color: #d93025;
+    }
+
+    .stat-value.green {
+      color: #188038;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 3px;
+    }
+
+    .progress-card {
+      background: white;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin: 10px 16px 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .progress-top span {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .progress-top strong {
+      font-size: 12px;
+      color: #1a1a1a;
+    }
+
+    .bar-bg {
+      background: #eee;
+      border-radius: 99px;
+      height: 7px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: #1a56a0;
+      transition: width 0.4s;
+    }
+
+    .bar-fill.warn {
+      background: #e8920a;
+    }
+
+    .bar-fill.over {
+      background: #d93025;
+    }
+
+    /* Gráfica dona */
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 10px 16px 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 14px;
+    }
+
+    .chart-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .donut-container {
+      position: relative;
+      flex-shrink: 0;
+      width: 130px;
+      height: 130px;
+    }
+
+    .donut-container canvas {
+      width: 130px !important;
+      height: 130px !important;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .donut-total-label {
+      font-size: 10px;
+      color: #999;
+    }
+
+    .donut-total-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-top: 1px;
+    }
+
+    .legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-info {
+      flex: 1;
+    }
+
+    .legend-name {
+      font-size: 12px;
+      color: #444;
+    }
+
+    .legend-val {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .chart-empty {
+      text-align: center;
+      color: #bbb;
+      font-size: 13px;
+      padding: 20px 0;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 10px 16px 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    .form-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .inp-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .inp-wrap {
+      flex: 1;
+    }
+
+    .inp-wrap.short {
+      flex: 0 0 118px;
+    }
+
+    .inp-wrap label {
+      display: block;
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .inp-wrap input,
+    .inp-wrap select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      background: #fafafa;
+      color: #1a1a1a;
+      -webkit-appearance: none;
+    }
+
+    .inp-wrap input:focus,
+    .inp-wrap select:focus {
+      outline: none;
+      border-color: #1a56a0;
+      background: white;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 13px;
+      background: #1a56a0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-save:active {
+      background: #154080;
+    }
+
+    .btn-save:disabled {
+      background: #aac4e0;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .list-card {
+      background: white;
+      border-radius: 12px;
+      margin: 10px 16px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+    }
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .list-header span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    .btn-refresh {
+      font-size: 12px;
+      color: #1a56a0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 4px 8px;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: #bbb;
+      font-size: 14px;
+    }
+
+    .gasto-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #f5f5f5;
+      transition: opacity 0.2s;
+    }
+
+    .gasto-item:last-child {
+      border-bottom: none;
+    }
+
+    .gasto-item.borrando {
+      opacity: 0.35;
+    }
+
+    .gasto-tipo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .gasto-info {
+      flex: 1;
+    }
+
+    .gasto-desc {
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+
+    .gasto-tipo {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 1px;
+    }
+
+    .gasto-monto {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 2px 6px;
+      line-height: 1;
+      border-radius: 50%;
+    }
+
+    .btn-del:active {
+      color: #d93025;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #222;
+      color: white;
+      padding: 10px 22px;
+      border-radius: 99px;
+      font-size: 14px;
+      z-index: 100;
+      transition: transform 0.3s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.ok {
+      background: #188038;
+    }
+
+    .toast.err {
+      background: #d93025;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="header">
-  <h1>💸 Gastos Diarios 2026</h1>
-  <p id="sync-status">Cargando...</p>
-</div>
-
-<div class="month-bar">
-  <label>Mes:</label>
-  <select id="mes-sel"></select>
-</div>
-
-<div class="summary">
-  <div class="stat">
-    <div class="stat-label">Gastado</div>
-    <div class="stat-value red" id="s-gastado">$0</div>
+  <div class="header">
+    <h1>💸 Gastos Diarios 2026</h1>
+    <p id="sync-status">Cargando...</p>
   </div>
-  <div class="stat">
-    <div class="stat-label">Sobrante disponible</div>
-    <div class="stat-value green" id="s-sobrante">$0</div>
-    <div class="stat-sub" id="s-base"></div>
-  </div>
-</div>
 
-<div class="progress-card">
-  <div class="progress-top">
-    <span>Presupuesto del mes</span>
-    <strong id="s-pct">0%</strong>
+  <div class="month-bar">
+    <label>Mes:</label>
+    <select id="mes-sel"></select>
   </div>
-  <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
-</div>
 
-<div class="form-card">
-  <div class="form-title">+ Nuevo gasto</div>
-  <div class="inp-row">
-    <div class="inp-wrap">
-      <label>Descripción</label>
-      <input type="text" id="inp-desc" placeholder="empanada, uber, salida..." autocomplete="off" autocapitalize="words" />
+  <div class="summary">
+    <div class="stat">
+      <div class="stat-label">Gastado</div>
+      <div class="stat-value red" id="s-gastado">$0</div>
     </div>
-    <div class="inp-wrap short">
-      <label>Monto ($)</label>
-      <input type="number" id="inp-monto" placeholder="5000" min="0" step="100" inputmode="numeric" />
+    <div class="stat">
+      <div class="stat-label">Sobrante disponible</div>
+      <div class="stat-value green" id="s-sobrante">$0</div>
+      <div class="stat-sub" id="s-base"></div>
     </div>
   </div>
-  <button class="btn-save" id="btn-save" onclick="guardar()">Guardar en Sheets ✓</button>
-  <p class="hint">Tip: escribe "empanada 5000" y deja el monto vacío</p>
-</div>
 
-<div class="list-card">
-  <div class="list-header">
-    <span>Gastos del mes</span>
-    <button class="btn-refresh" onclick="cargar()">↻ Actualizar</button>
+  <div class="progress-card">
+    <div class="progress-top">
+      <span>Presupuesto del mes</span>
+      <strong id="s-pct">0%</strong>
+    </div>
+    <div class="bar-bg">
+      <div class="bar-fill" id="bar" style="width:0%"></div>
+    </div>
   </div>
-  <div id="lista"><div class="empty">Cargando...</div></div>
-</div>
 
-<div class="toast" id="toast"></div>
+  <!-- Gráfica dona -->
+  <div class="chart-card">
+    <div class="chart-title">Gastos por categoría</div>
+    <div id="chart-body">
+      <div class="chart-empty">Sin gastos este mes</div>
+    </div>
+  </div>
 
-<script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJz3WCu8C3K-kl9UOThEWztFWv8FhKSAFNQg4InATPOpxHkYr_WnUfeOBCsz8iyh0/exec';
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  <div class="form-card">
+    <div class="form-title">+ Nuevo gasto</div>
+    <div class="inp-row">
+      <div class="inp-wrap">
+        <label>Descripción</label>
+        <input type="text" id="inp-desc" placeholder="empanada, uber, salida..." autocomplete="off"
+          autocapitalize="words" />
+      </div>
+      <div class="inp-wrap short">
+        <label>Monto ($)</label>
+        <input type="number" id="inp-monto" placeholder="5000" min="0" step="100" inputmode="numeric" />
+      </div>
+    </div>
+    <div class="inp-row">
+      <div class="inp-wrap">
+        <label>Tipo de gasto</label>
+        <select id="inp-tipo">
+          <option value="Comida">🍔 Comida</option>
+          <option value="Transporte">🚌 Transporte</option>
+          <option value="Ocio">🎮 Ocio / Entretenimiento</option>
+          <option value="Mascotas">🐱 Mascotas</option>
+          <option value="Salud">💊 Salud</option>
+          <option value="Personal">👗 Ropa / Personal</option>
+          <option value="Regalos">🎁 Regalos</option>
+          <option value="Otros">💸 Otros</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-save" id="btn-save" onclick="guardar()">Guardar en Sheets ✓</button>
+    <p class="hint">Tip: escribe "empanada 5000" y deja el monto vacío</p>
+  </div>
 
-const now = new Date();
-let mesActual = MESES[Math.min(now.getMonth() + 1, 11)];
-let gastos = [];
-let sobrasteBase = 0; // viene del Sheets
+  <div class="list-card">
+    <div class="list-header">
+      <span>Gastos del mes</span>
+      <button class="btn-refresh" onclick="cargar()">↻ Actualizar</button>
+    </div>
+    <div id="lista">
+      <div class="empty">Cargando...</div>
+    </div>
+  </div>
 
-const sel = document.getElementById('mes-sel');
-MESES.forEach(m => {
-  const o = document.createElement('option');
-  o.value = m; o.textContent = m;
-  if (m === mesActual) o.selected = true;
-  sel.appendChild(o);
-});
-sel.addEventListener('change', () => { mesActual = sel.value; cargar(); });
+  <div class="toast" id="toast"></div>
 
-function cop(n) { return '$' + Math.round(n).toLocaleString('es-CO'); }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJz3WCu8C3K-kl9UOThEWztFWv8FhKSAFNQg4InATPOpxHkYr_WnUfeOBCsz8iyh0/exec';
+    const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-function toast(msg, tipo = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + tipo;
-  setTimeout(() => t.className = 'toast', 3000);
-}
+    const TIPOS = {
+      'Comida': { color: '#FF6B6B', emoji: '🍔' },
+      'Transporte': { color: '#4ECDC4', emoji: '🚌' },
+      'Ocio': { color: '#A78BFA', emoji: '🎮' },
+      'Mascotas': { color: '#F59E0B', emoji: '🐱' },
+      'Salud': { color: '#34D399', emoji: '💊' },
+      'Personal': { color: '#F472B6', emoji: '👗' },
+      'Regalos': { color: '#60A5FA', emoji: '🎁' },
+      'Otros': { color: '#94A3B8', emoji: '💸' },
+    };
 
-function parsear() {
-  let desc = document.getElementById('inp-desc').value.trim();
-  let monto = parseFloat(document.getElementById('inp-monto').value);
-  if (!desc) return null;
-  if (isNaN(monto)) {
-    const m = desc.match(/(\d[\d.]*)$/);
-    if (m) { monto = parseFloat(m[1]); desc = desc.replace(m[0], '').trim(); }
-    else return null;
-  }
-  if (!desc || monto <= 0) return null;
-  return { desc: desc.charAt(0).toUpperCase() + desc.slice(1).toLowerCase(), monto };
-}
+    const now = new Date();
+    let mesActual = MESES[Math.min(now.getMonth() + 1, 11)];
+    let gastos = [];
+    let sobrasteBase = 0;
+    let donutChart = null;
 
-async function cargar() {
-  document.getElementById('sync-status').textContent = 'Sincronizando...';
-  try {
-    const res = await fetch(`${SCRIPT_URL}?mes=${encodeURIComponent(mesActual)}&t=${Date.now()}`);
-    const data = await res.json();
-    gastos = data.gastos || [];
-    sobrasteBase = data.sobrante || 0;
-    document.getElementById('sync-status').textContent = '✓ Sincronizado con Google Sheets';
-    renderizar();
-  } catch(e) {
-    document.getElementById('sync-status').textContent = 'Sin conexión';
-    toast('No se pudo conectar', 'err');
-    renderizar();
-  }
-}
-
-async function guardar() {
-  const p = parsear();
-  if (!p) { toast('Escribe descripción y monto', 'err'); return; }
-  const btn = document.getElementById('btn-save');
-  btn.disabled = true; btn.textContent = 'Guardando...';
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ mes: mesActual, desc: p.desc, monto: p.monto }),
-      headers: { 'Content-Type': 'text/plain' }
+    const sel = document.getElementById('mes-sel');
+    MESES.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = m;
+      if (m === mesActual) o.selected = true;
+      sel.appendChild(o);
     });
-    const data = await res.json();
-    if (data.ok) {
-      document.getElementById('inp-desc').value = '';
-      document.getElementById('inp-monto').value = '';
-      document.getElementById('inp-desc').focus();
-      toast('✓ ' + p.desc + ' guardado', 'ok');
-      await cargar();
-    } else throw new Error(data.error || 'Error');
-  } catch(e) {
-    toast('Error al guardar: ' + e.message, 'err');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Guardar en Sheets ✓';
-  }
-}
+    sel.addEventListener('change', () => { mesActual = sel.value; cargar(); });
 
-async function borrar(fila, desc, itemEl) {
-  if (!confirm('¿Borrar "' + desc + '"?')) return;
-  itemEl.classList.add('borrando');
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ accion: 'borrar', fila }),
-      headers: { 'Content-Type': 'text/plain' }
-    });
-    const data = await res.json();
-    if (data.ok) {
-      toast('✓ Eliminado', 'ok');
-      await cargar();
-    } else throw new Error(data.error);
-  } catch(e) {
-    itemEl.classList.remove('borrando');
-    toast('Error al borrar', 'err');
-  }
-}
+    function cop(n) { return '$' + Math.round(n).toLocaleString('es-CO'); }
 
-function renderizar() {
-  const total = gastos.reduce((s, g) => s + g.monto, 0);
-  // sobrasteBase ya viene con los gastos diarios restados desde la hoja
-  const sobrante = sobrasteBase;
-  // Para el % usamos sobrasteBase + total para reconstruir el presupuesto original
-  const presupuesto = sobrasteBase + total;
-  const pct = presupuesto > 0 ? Math.min(Math.round(total / presupuesto * 100), 100) : 0;
+    function toast(msg, tipo = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + tipo;
+      setTimeout(() => t.className = 'toast', 3000);
+    }
 
-  // Mes del que viene el dinero (el anterior)
-  const idx = MESES.indexOf(mesActual);
-  const mesPago = MESES[idx === 0 ? 11 : idx - 1];
+    function parsear() {
+      let desc = document.getElementById('inp-desc').value.trim();
+      let monto = parseFloat(document.getElementById('inp-monto').value);
+      const tipo = document.getElementById('inp-tipo').value;
+      if (!desc) return null;
+      if (isNaN(monto)) {
+        const m = desc.match(/(\d[\d.]*)$/);
+        if (m) { monto = parseFloat(m[1]); desc = desc.replace(m[0], '').trim(); }
+        else return null;
+      }
+      if (!desc || monto <= 0) return null;
+      return { desc: desc.charAt(0).toUpperCase() + desc.slice(1).toLowerCase(), monto, tipo };
+    }
 
-  document.getElementById('s-gastado').textContent = cop(total);
-  const sob = document.getElementById('s-sobrante');
-  sob.textContent = cop(sobrante);
-  sob.className = 'stat-value ' + (sobrante < 0 ? 'red' : 'green');
-  document.getElementById('s-base').textContent = sobrasteBase > 0 ? `Presupuesto de ${mesPago}: ${cop(sobrasteBase)}` : '';
-  document.getElementById('s-pct').textContent = pct + '%';
-  const bar = document.getElementById('bar');
-  bar.style.width = pct + '%';
-  bar.className = 'bar-fill' + (pct >= 100 ? ' over' : pct >= 75 ? ' warn' : '');
+    async function cargar() {
+      document.getElementById('sync-status').textContent = 'Sincronizando...';
+      try {
+        const res = await fetch(`${SCRIPT_URL}?mes=${encodeURIComponent(mesActual)}&t=${Date.now()}`);
+        const data = await res.json();
+        gastos = data.gastos || [];
+        sobrasteBase = data.sobrante || 0;
+        document.getElementById('sync-status').textContent = '✓ Sincronizado con Google Sheets';
+        renderizar();
+      } catch (e) {
+        document.getElementById('sync-status').textContent = 'Sin conexión';
+        toast('No se pudo conectar', 'err');
+        renderizar();
+      }
+    }
 
+    async function guardar() {
+      const p = parsear();
+      if (!p) { toast('Escribe descripción y monto', 'err'); return; }
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true; btn.textContent = 'Guardando...';
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ mes: mesActual, desc: p.desc, monto: p.monto, tipo: p.tipo }),
+          headers: { 'Content-Type': 'text/plain' }
+        });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById('inp-desc').value = '';
+          document.getElementById('inp-monto').value = '';
+          document.getElementById('inp-desc').focus();
+          toast('✓ ' + p.desc + ' guardado', 'ok');
+          await cargar();
+        } else throw new Error(data.error || 'Error');
+      } catch (e) {
+        toast('Error al guardar: ' + e.message, 'err');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Guardar en Sheets ✓';
+      }
+    }
 
-  const lista = document.getElementById('lista');
-  if (!gastos.length) { lista.innerHTML = '<div class="empty">Sin gastos este mes</div>'; return; }
-  lista.innerHTML = [...gastos].reverse().map(g => `
-    <div class="gasto-item" id="item-${g.fila}">
-      <div class="gasto-info"><div class="gasto-desc">${g.desc}</div></div>
-      <span class="gasto-monto">${cop(g.monto)}</span>
-      <button class="btn-del" onclick="borrar(${g.fila}, '${g.desc.replace(/'/g,"\\'")}', document.getElementById('item-${g.fila}'))" aria-label="Eliminar">×</button>
+    async function borrar(fila, desc, itemEl) {
+      if (!confirm('¿Borrar "' + desc + '"?')) return;
+      itemEl.classList.add('borrando');
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ accion: 'borrar', fila }),
+          headers: { 'Content-Type': 'text/plain' }
+        });
+        const data = await res.json();
+        if (data.ok) {
+          toast('✓ Eliminado', 'ok');
+          await cargar();
+        } else throw new Error(data.error);
+      } catch (e) {
+        itemEl.classList.remove('borrando');
+        toast('Error al borrar', 'err');
+      }
+    }
+
+    function renderDonut(porTipo, total) {
+      const chartBody = document.getElementById('chart-body');
+      if (!porTipo || Object.keys(porTipo).length === 0) {
+        chartBody.innerHTML = '<div class="chart-empty">Sin gastos este mes</div>';
+        donutChart = null;
+        return;
+      }
+
+      chartBody.innerHTML = `
+    <div class="chart-wrap">
+      <div class="donut-container">
+        <canvas id="donut-canvas"></canvas>
+        <div class="donut-center">
+          <span class="donut-total-label">Total</span>
+          <span class="donut-total-value">${cop(total)}</span>
+        </div>
+      </div>
+      <div class="legend" id="donut-legend"></div>
     </div>
-  `).join('');
-}
+  `;
 
-document.getElementById('inp-desc').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('inp-monto').focus(); });
-document.getElementById('inp-monto').addEventListener('keydown', e => { if (e.key === 'Enter') guardar(); });
+      const labels = Object.keys(porTipo);
+      const values = labels.map(k => porTipo[k]);
+      const colors = labels.map(k => (TIPOS[k] || TIPOS['Otros']).color);
 
-cargar();
-</script>
+      const ctx = document.getElementById('donut-canvas').getContext('2d');
+      if (donutChart) donutChart.destroy();
+      donutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+        options: {
+          cutout: '68%',
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          animation: { duration: 500 }
+        }
+      });
+
+      const legend = document.getElementById('donut-legend');
+      legend.innerHTML = labels.map((k, i) => {
+        const pct = Math.round(values[i] / total * 100);
+        const t = TIPOS[k] || TIPOS['Otros'];
+        return `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${t.color}"></div>
+        <div class="legend-info">
+          <div class="legend-name">${t.emoji} ${k}</div>
+          <div class="legend-val">${cop(values[i])} · ${pct}%</div>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    function renderizar() {
+      const total = gastos.reduce((s, g) => s + g.monto, 0);
+      const sobrante = sobrasteBase;
+      const presupuesto = sobrasteBase + total;
+      const pct = presupuesto > 0 ? Math.min(Math.round(total / presupuesto * 100), 100) : 0;
+      const idx = MESES.indexOf(mesActual);
+      const mesPago = MESES[idx === 0 ? 11 : idx - 1];
+
+      document.getElementById('s-gastado').textContent = cop(total);
+      const sob = document.getElementById('s-sobrante');
+      sob.textContent = cop(sobrante);
+      sob.className = 'stat-value ' + (sobrante < 0 ? 'red' : 'green');
+      document.getElementById('s-base').textContent = sobrasteBase > 0 ? `Presupuesto de ${mesPago}: ${cop(sobrasteBase)}` : '';
+      document.getElementById('s-pct').textContent = pct + '%';
+      const bar = document.getElementById('bar');
+      bar.style.width = pct + '%';
+      bar.className = 'bar-fill' + (pct >= 100 ? ' over' : pct >= 75 ? ' warn' : '');
+
+      // Agrupar por tipo para la dona
+      const porTipo = {};
+      gastos.forEach(g => {
+        const t = g.tipo || 'Otros';
+        porTipo[t] = (porTipo[t] || 0) + g.monto;
+      });
+      renderDonut(porTipo, total);
+
+      const lista = document.getElementById('lista');
+      if (!gastos.length) { lista.innerHTML = '<div class="empty">Sin gastos este mes</div>'; return; }
+      lista.innerHTML = [...gastos].reverse().map(g => {
+        const t = TIPOS[g.tipo] || TIPOS['Otros'];
+        return `
+      <div class="gasto-item" id="item-${g.fila}">
+        <div class="gasto-tipo-dot" style="background:${t.color}"></div>
+        <div class="gasto-info">
+          <div class="gasto-desc">${g.desc}</div>
+          <div class="gasto-tipo">${t.emoji} ${g.tipo || 'Otros'}</div>
+        </div>
+        <span class="gasto-monto">${cop(g.monto)}</span>
+        <button class="btn-del" onclick="borrar(${g.fila}, '${g.desc.replace(/'/g, "\\'")}', document.getElementById('item-${g.fila}'))" aria-label="Eliminar">×</button>
+      </div>
+    `;
+      }).join('');
+    }
+
+    document.getElementById('inp-desc').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('inp-monto').focus(); });
+    document.getElementById('inp-monto').addEventListener('keydown', e => { if (e.key === 'Enter') guardar(); });
+
+    cargar();
+  </script>
 </body>
+
 </html>
