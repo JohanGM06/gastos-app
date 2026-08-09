@@ -807,14 +807,21 @@
         <input class="ingreso-input" type="number" id="i-people" placeholder="0" inputmode="numeric"
           oninput="actualizarTotalIngresos()" />
       </div>
-      <div class="ingreso-card">
-        <div class="ingreso-label">➕ Ingreso Extra</div>
-        <input class="ingreso-input" type="number" id="i-extra" placeholder="0" inputmode="numeric"
-          oninput="actualizarTotalIngresos()" />
+      <!-- Extras dinámicos desde Sheets -->
+      <div id="i-extras-container"></div>
+      <!-- Nuevo ingreso extra siempre al final -->
+      <div class="ingreso-card" style="grid-column: span 2;">
+        <div class="ingreso-label">➕ Nuevo ingreso extra</div>
+        <div style="display:flex;gap:8px;">
+          <input class="ingreso-input" type="text" id="i-extra-nombre" placeholder="Nombre (ej: Prima)"
+            style="flex:1;text-align:left;" />
+          <input class="ingreso-input" type="number" id="i-extra-valor" placeholder="0" inputmode="numeric"
+            style="flex:1;" />
+        </div>
       </div>
     </div>
     <div class="ingreso-total">
-      <span>Total ingresos del mes</span>
+      <span>Base Total con Descuento</span>
       <strong id="i-total">$0</strong>
     </div>
     <button class="btn-save-ingresos" onclick="guardarIngresos()">Guardar ingresos ✓</button>
@@ -1066,41 +1073,64 @@
       } catch (e) { setStatus('Sin conexión'); toast('No se pudo conectar', 'err'); }
     }
 
+    let extrasActuales = [];
+
     function actualizarTotalIngresos() {
-      const s = parseFloat(document.getElementById('i-sueldo').value) || 0;
-      const sub = parseFloat(document.getElementById('i-subsidio').value) || 0;
-      const p = parseFloat(document.getElementById('i-people').value) || 0;
-      const ex = parseFloat(document.getElementById('i-extra').value) || 0;
-      document.getElementById('i-total').textContent = cop(s + sub + p + ex);
+      if (controlData && controlData.ingresos && controlData.ingresos.totalNeto > 0) {
+        document.getElementById('i-total').textContent = cop(controlData.ingresos.totalNeto);
+      }
     }
 
     function renderIngresos(ing) {
+      extrasActuales = ing.extras || [];
       document.getElementById('i-sueldo').value = ing.sueldo || '';
       document.getElementById('i-subsidio').value = ing.subsidio || '';
       document.getElementById('i-people').value = ing.people || '';
-      document.getElementById('i-extra').value = '';
 
-      // Mostrar total neto calculado por la hoja
-      const totalEl = document.getElementById('i-total');
-      if (ing.totalNeto > 0) {
-        totalEl.textContent = cop(ing.totalNeto);
-        totalEl.title = 'Base Total con Descuento según tu hoja';
-      }
+      // Renderizar extras existentes de Sheets
+      const container = document.getElementById('i-extras-container');
+      container.innerHTML = extrasActuales.map((ex, idx) => `
+        <div class="ingreso-card">
+          <div class="ingreso-label">✨ ${ex.nombre}</div>
+          <input class="ingreso-input" type="number" id="i-ex-${idx}" value="${ex.valor || 0}"
+                 placeholder="0" inputmode="numeric" />
+        </div>
+      `).join('');
+
+      // Limpiar campo nuevo
+      document.getElementById('i-extra-nombre').value = '';
+      document.getElementById('i-extra-valor').value = '';
+
       actualizarTotalIngresos();
     }
 
     async function guardarIngresos() {
-      const campos = [
-        { campo: 'sueldo', val: parseFloat(document.getElementById('i-sueldo').value) || 0 },
-        { campo: 'subsidio', val: parseFloat(document.getElementById('i-subsidio').value) || 0 },
-        { campo: 'people', val: parseFloat(document.getElementById('i-people').value) || 0 },
-        { campo: 'extra', val: parseFloat(document.getElementById('i-extra').value) || 0 },
-      ];
+      // Extras existentes actualizados
+      const extras = extrasActuales.map((ex, idx) => ({
+        nombre: ex.nombre,
+        valor: parseFloat(document.getElementById('i-ex-' + idx).value) || 0
+      }));
+      // Nuevo extra si tiene nombre y valor
+      const nuevoNombre = document.getElementById('i-extra-nombre').value.trim();
+      const nuevoValor = parseFloat(document.getElementById('i-extra-valor').value) || 0;
+      if (nuevoNombre && nuevoValor > 0) extras.push({ nombre: nuevoNombre, valor: nuevoValor });
+
       try {
-        for (const c of campos) {
-          await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ accion: 'guardar_ingreso', mes: mesActual, campo: c.campo, valor: c.val }) });
-        }
-        toast('✓ Ingresos guardados', 'ok');
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            accion: 'guardar_ingreso',
+            mes: mesActual,
+            sueldo: parseFloat(document.getElementById('i-sueldo').value) || 0,
+            subsidio: parseFloat(document.getElementById('i-subsidio').value) || 0,
+            people: parseFloat(document.getElementById('i-people').value) || 0,
+            extras
+          })
+        });
+        const d = await res.json();
+        if (d.ok) { toast('✓ Ingresos guardados', 'ok'); await cargarControl(); }
+        else throw new Error(d.error);
       } catch (e) { toast('Error al guardar', 'err'); }
     }
 
