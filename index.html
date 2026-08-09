@@ -73,7 +73,8 @@
       border-top: 1px solid #e5e5e5;
       display: flex;
       z-index: 20;
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: 0;
+      height: 56px;
     }
 
     .nav-btn {
@@ -718,6 +719,145 @@
       cursor: pointer;
       font-family: inherit;
     }
+
+    /* ── Modo oscuro ── */
+    .btn-dark {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    body.dark {
+      background: #111318;
+      color: #e8eaed;
+    }
+
+    body.dark .header {
+      background: #1a2744;
+    }
+
+    body.dark .nav {
+      background: #1e2026;
+      border-top-color: #2d2f36;
+    }
+
+    body.dark .nav-btn {
+      color: #666;
+    }
+
+    body.dark .nav-btn.active {
+      color: #7baff5;
+    }
+
+    body.dark .month-sel {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark .stat,
+    body.dark .progress-card,
+    body.dark .chart-card,
+    body.dark .form-card,
+    body.dark .list-card,
+    body.dark .ingreso-card,
+    body.dark .ingreso-total,
+    body.dark .ahorro-meta,
+    body.dark .modal {
+      background: #1e2026;
+      color: #e8eaed;
+      box-shadow: none;
+    }
+
+    body.dark .stat-label,
+    body.dark .progress-top span,
+    body.dark .chart-title,
+    body.dark .form-title,
+    body.dark .list-header span,
+    body.dark .ingreso-label {
+      color: #9aa0a6;
+    }
+
+    body.dark .item {
+      border-bottom-color: #2d2f36;
+    }
+
+    body.dark .item-name,
+    body.dark .gasto-desc {
+      color: #e8eaed;
+    }
+
+    body.dark .item-amount,
+    body.dark .gasto-monto {
+      color: #e8eaed;
+    }
+
+    body.dark .list-header {
+      border-bottom-color: #2d2f36;
+    }
+
+    body.dark .inp-wrap input,
+    body.dark .inp-wrap select,
+    body.dark .ingreso-input {
+      background: #2d2f36;
+      border-color: #3c4043;
+      color: #e8eaed;
+    }
+
+    body.dark .inp-wrap input:focus,
+    body.dark .inp-wrap select:focus,
+    body.dark .ingreso-input:focus {
+      border-color: #7baff5;
+      background: #35373d;
+    }
+
+    body.dark .btn-cancel {
+      background: #2d2f36;
+      color: #e8eaed;
+    }
+
+    body.dark .btn-add-inline {
+      border-color: #3c4043;
+      color: #9aa0a6;
+    }
+
+    body.dark .overlay {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    body.dark .bar-bg,
+    body.dark .ahorro-bar-bg {
+      background: #2d2f36;
+    }
+
+    body.dark .empty {
+      color: #5f6368;
+    }
+
+    body.dark .hint {
+      color: #5f6368;
+    }
+
+    body.dark .stat-sub {
+      color: #5f6368;
+    }
+
+    body.dark .month-bar {
+      background: #1e2026;
+      border-bottom-color: #2d2f36;
+    }
+
+    body.dark .month-bar label {
+      color: #9aa0a6;
+    }
+
+    body.dark .month-sel option {
+      background: #1e2026;
+      color: #e8eaed;
+    }
   </style>
 </head>
 
@@ -728,7 +868,10 @@
       <h1>💸 Finanzas 2026</h1>
       <p id="sync-status">Cargando...</p>
     </div>
-    <select class="month-sel" id="mes-sel"></select>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button class="btn-dark" id="btn-dark" onclick="toggleDark()" title="Modo oscuro">🌙</button>
+      <select class="month-sel" id="mes-sel"></select>
+    </div>
   </div>
 
   <!-- ══ SCREEN: GASTOS ══ -->
@@ -1245,6 +1388,18 @@
       <div class="item-info"><div class="item-name">${r.mes}</div><div class="item-sub">🏠 ${cop(r.mudanza)} · ✈️ ${cop(r.viaje)} · 🚨 ${cop(r.emergencia)}</div></div>
       <span class="item-amount">${cop(r.total)}</span>
     </div>`).join('');
+    }
+
+    // ── Modo oscuro ───────────────────────────────────────────────────
+    function toggleDark() {
+      const isDark = document.body.classList.toggle('dark');
+      document.getElementById('btn-dark').textContent = isDark ? '☀️' : '🌙';
+      localStorage.setItem('darkMode', isDark ? '1' : '0');
+    }
+    // Restaurar preferencia guardada
+    if (localStorage.getItem('darkMode') === '1') {
+      document.body.classList.add('dark');
+      document.getElementById('btn-dark').textContent = '☀️';
     }
 
     // ── Init ──────────────────────────────────────────────────────────
