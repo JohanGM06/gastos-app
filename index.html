@@ -914,7 +914,6 @@
     const now = new Date();
     let mesActual = MESES[Math.min(now.getMonth() + 1, 11)];
     let gastos = [], sobrasteBase = 0, donutChart = null, modalTipo = 'deuda';
-    let mesBloque = mesActual; // se actualiza cuando carga Control
 
     // ── Mes selector ─────────────────────────────────────────────────
     const sel = document.getElementById('mes-sel');
@@ -1083,8 +1082,6 @@
     }
 
     function renderIngresos(ing) {
-      // mesBloque viene del controlData
-      if (controlData && controlData.mesBloque) mesBloque = controlData.mesBloque;
       extrasActuales = ing.extras || [];
       document.getElementById('i-sueldo').value = ing.sueldo || '';
       document.getElementById('i-subsidio').value = ing.subsidio || '';
@@ -1124,7 +1121,7 @@
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
             accion: 'guardar_ingreso',
-            mes: mesBloque,  // ← el mes del bloque que se está mostrando
+            mes: mesActual,
             sueldo: parseFloat(document.getElementById('i-sueldo').value) || 0,
             subsidio: parseFloat(document.getElementById('i-subsidio').value) || 0,
             people: parseFloat(document.getElementById('i-people').value) || 0,
@@ -1197,7 +1194,7 @@
       if (!nombre || monto <= 0) { toast('Escribe nombre y monto', 'err'); return; }
       const accion = modalTipo === 'deuda' ? 'guardar_deuda' : 'guardar_pago';
       try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ accion, mes: mesActual, nombre, monto }) });
+        const r = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ accion, mes: mesBloque, nombre, monto }) });
         const d = await r.json();
         if (d.ok) { cerrarModal(); toast('✓ Guardado', 'ok'); await cargarControl(); }
         else throw new Error(d.error);
