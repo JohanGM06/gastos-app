@@ -913,6 +913,7 @@
 
     const now = new Date();
     let mesActual = MESES[Math.min(now.getMonth() + 1, 11)];
+    let mesBloque = mesActual; // mes del bloque que se muestra en Control/Ingresos
     let gastos = [], sobrasteBase = 0, donutChart = null, modalTipo = 'deuda';
 
     // ── Mes selector ─────────────────────────────────────────────────
@@ -1066,6 +1067,7 @@
         const r = await fetch(`${SCRIPT_URL}?modulo=control&mes=${encodeURIComponent(mesActual)}&t=${Date.now()}`);
         const d = await r.json();
         controlData = d;
+        mesBloque = d.mesBloque || mesActual; // actualizar mes del bloque
         setStatus('✓ Sincronizado');
         renderIngresos(d.ingresos || {});
         renderDeudas(d.deudas || []);
