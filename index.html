@@ -1171,7 +1171,11 @@
       if (el) el.classList.add('removing');
       const accion = tipo === 'deuda' ? 'borrar_deuda' : 'borrar_pago';
       try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ accion, fila }) });
+        const r = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ accion, fila, mes: mesBloque }) // ← agrega mes
+        });
         const d = await r.json();
         if (d.ok) { toast('✓ Eliminado', 'ok'); await cargarControl(); }
         else throw new Error(d.error);
