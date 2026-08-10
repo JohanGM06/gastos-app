@@ -937,7 +937,7 @@
 
   <!-- ══ SCREEN: INGRESOS ══ -->
   <div class="screen" id="screen-ingresos">
-    <div class="ingreso-grid">
+    <div class="ingreso-grid" id="i-grid">
       <div class="ingreso-card">
         <div class="ingreso-label">💼 Sueldo Base</div>
         <input class="ingreso-input" type="number" id="i-sueldo" placeholder="0" inputmode="numeric"
@@ -953,10 +953,8 @@
         <input class="ingreso-input" type="number" id="i-people" placeholder="0" inputmode="numeric"
           oninput="actualizarTotalIngresos()" />
       </div>
-      <!-- Extras dinámicos desde Sheets — continúan en la grilla normalmente -->
-      <div id="i-extras-container" style="display:contents"></div>
-      <!-- Nuevo ingreso extra siempre al final — ocupa toda la fila -->
-      <div class="ingreso-card" style="grid-column: span 2;">
+      <!-- Nuevo ingreso extra siempre al final -->
+      <div class="ingreso-card" style="grid-column:span 2" id="i-nuevo-extra">
         <div class="ingreso-label">➕ Nuevo ingreso extra</div>
         <div style="display:flex;gap:8px;">
           <input class="ingreso-input" type="text" id="i-extra-nombre" placeholder="Nombre (ej: Prima)"
@@ -1235,15 +1233,22 @@
       document.getElementById('i-subsidio').value = ing.subsidio || '';
       document.getElementById('i-people').value = ing.people || '';
 
-      // Renderizar extras — uno por celda, en orden
-      const container = document.getElementById('i-extras-container');
-      container.innerHTML = extrasActuales.map((ex, idx) => `
-        <div class="ingreso-card">
+      // Eliminar extras anteriores del grid (tienen clase i-extra-item)
+      document.querySelectorAll('.i-extra-item').forEach(el => el.remove());
+
+      // Insertar extras directamente en el grid, antes del div "Nuevo ingreso extra"
+      const grid = document.getElementById('i-grid');
+      const nuevoExtraDiv = document.getElementById('i-nuevo-extra');
+      extrasActuales.forEach((ex, idx) => {
+        const div = document.createElement('div');
+        div.className = 'ingreso-card i-extra-item';
+        div.innerHTML = `
           <div class="ingreso-label">✨ ${ex.nombre}</div>
           <input class="ingreso-input" type="number" id="i-ex-${idx}" value="${ex.valor || 0}"
                  placeholder="0" inputmode="numeric" />
-        </div>
-      `).join('');
+        `;
+        grid.insertBefore(div, nuevoExtraDiv);
+      });
 
       document.getElementById('i-extra-nombre').value = '';
       document.getElementById('i-extra-valor').value = '';
