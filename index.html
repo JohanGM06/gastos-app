@@ -1258,8 +1258,12 @@
       extrasActuales.forEach((ex, idx) => {
         const div = document.createElement('div');
         div.className = 'ingreso-card i-extra-item';
+        div.style.position = 'relative';
         div.innerHTML = `
-          <div class="ingreso-label">✨ ${ex.nombre}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="ingreso-label" style="margin-bottom:0">✨ ${ex.nombre}</div>
+            <button onclick="borrarExtra(${idx})" style="background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;" title="Eliminar">×</button>
+          </div>
           <input class="ingreso-input" type="text" id="i-ex-${idx}"
                  value="${ex.valor > 0 ? '$' + Math.round(ex.valor).toLocaleString('es-CO') : ''}"
                  placeholder="$0" inputmode="numeric" oninput="fmtIngreso(this)" />
@@ -1270,6 +1274,29 @@
       document.getElementById('i-extra-nombre').value = '';
       document.getElementById('i-extra-valor').value = '';
       actualizarTotalIngresos();
+    }
+
+    async function borrarExtra(idx) {
+      if (!confirm('¿Eliminar "' + extrasActuales[idx].nombre + '"?')) return;
+      // Quitar del array y guardar sin ese extra
+      extrasActuales.splice(idx, 1);
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            accion: 'guardar_ingreso',
+            mes: mesBloque,
+            sueldo: parseCOP('i-sueldo'),
+            subsidio: parseCOP('i-subsidio'),
+            people: parseCOP('i-people'),
+            extras: extrasActuales
+          })
+        });
+        const d = await res.json();
+        if (d.ok) { toast('✓ Extra eliminado', 'ok'); await cargarControl(); }
+        else throw new Error(d.error);
+      } catch (e) { toast('Error al eliminar', 'err'); }
     }
 
     async function guardarIngresos() {
