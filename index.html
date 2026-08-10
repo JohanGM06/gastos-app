@@ -953,14 +953,14 @@
         <input class="ingreso-input" type="number" id="i-people" placeholder="0" inputmode="numeric"
           oninput="actualizarTotalIngresos()" />
       </div>
-      <!-- Extras dinámicos desde Sheets -->
-      <div id="i-extras-container"></div>
-      <!-- Nuevo ingreso extra siempre al final -->
+      <!-- Extras dinámicos desde Sheets — continúan en la grilla normalmente -->
+      <div id="i-extras-container" style="display:contents"></div>
+      <!-- Nuevo ingreso extra siempre al final — ocupa toda la fila -->
       <div class="ingreso-card" style="grid-column: span 2;">
         <div class="ingreso-label">➕ Nuevo ingreso extra</div>
         <div style="display:flex;gap:8px;">
           <input class="ingreso-input" type="text" id="i-extra-nombre" placeholder="Nombre (ej: Prima)"
-            style="flex:1;text-align:left;" />
+            style="flex:1;text-align:left;font-weight:400;font-size:14px;" />
           <input class="ingreso-input" type="number" id="i-extra-valor" placeholder="0" inputmode="numeric"
             style="flex:1;" />
         </div>
@@ -1235,7 +1235,7 @@
       document.getElementById('i-subsidio').value = ing.subsidio || '';
       document.getElementById('i-people').value = ing.people || '';
 
-      // Renderizar extras existentes de Sheets
+      // Renderizar extras — uno por celda, en orden
       const container = document.getElementById('i-extras-container');
       container.innerHTML = extrasActuales.map((ex, idx) => `
         <div class="ingreso-card">
@@ -1245,20 +1245,16 @@
         </div>
       `).join('');
 
-      // Limpiar campo nuevo
       document.getElementById('i-extra-nombre').value = '';
       document.getElementById('i-extra-valor').value = '';
-
       actualizarTotalIngresos();
     }
 
     async function guardarIngresos() {
-      // Extras existentes actualizados
       const extras = extrasActuales.map((ex, idx) => ({
         nombre: ex.nombre,
         valor: parseFloat(document.getElementById('i-ex-' + idx).value) || 0
       }));
-      // Nuevo extra si tiene nombre y valor
       const nuevoNombre = document.getElementById('i-extra-nombre').value.trim();
       const nuevoValor = parseFloat(document.getElementById('i-extra-valor').value) || 0;
       if (nuevoNombre && nuevoValor > 0) extras.push({ nombre: nuevoNombre, valor: nuevoValor });
@@ -1269,7 +1265,7 @@
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
             accion: 'guardar_ingreso',
-            mes: mesActual,
+            mes: mesBloque,  // ← usa mesBloque, no mesActual
             sueldo: parseFloat(document.getElementById('i-sueldo').value) || 0,
             subsidio: parseFloat(document.getElementById('i-subsidio').value) || 0,
             people: parseFloat(document.getElementById('i-people').value) || 0,
