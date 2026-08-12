@@ -940,18 +940,18 @@
     <div class="ingreso-grid" id="i-grid">
       <div class="ingreso-card">
         <div class="ingreso-label">💼 Sueldo Base</div>
-        <input class="ingreso-input" type="number" id="i-sueldo" placeholder="0" inputmode="numeric"
-          oninput="actualizarTotalIngresos()" />
+        <input class="ingreso-input" type="text" id="i-sueldo" placeholder="$0" inputmode="numeric"
+          oninput="fmtIngreso(this)" />
       </div>
       <div class="ingreso-card">
         <div class="ingreso-label">🚌 Subsidio Transporte</div>
-        <input class="ingreso-input" type="number" id="i-subsidio" placeholder="0" inputmode="numeric"
-          oninput="actualizarTotalIngresos()" />
+        <input class="ingreso-input" type="text" id="i-subsidio" placeholder="$0" inputmode="numeric"
+          oninput="fmtIngreso(this)" />
       </div>
       <div class="ingreso-card">
         <div class="ingreso-label">💥 People Pass</div>
-        <input class="ingreso-input" type="number" id="i-people" placeholder="0" inputmode="numeric"
-          oninput="actualizarTotalIngresos()" />
+        <input class="ingreso-input" type="text" id="i-people" placeholder="$0" inputmode="numeric"
+          oninput="fmtIngreso(this)" />
       </div>
       <!-- Nuevo ingreso extra siempre al final -->
       <div class="ingreso-card" style="grid-column:span 2" id="i-nuevo-extra">
@@ -959,8 +959,8 @@
         <div style="display:flex;gap:8px;">
           <input class="ingreso-input" type="text" id="i-extra-nombre" placeholder="Nombre (ej: Prima)"
             style="flex:1;text-align:left;font-weight:400;font-size:14px;" />
-          <input class="ingreso-input" type="number" id="i-extra-valor" placeholder="0" inputmode="numeric"
-            style="flex:1;" />
+          <input class="ingreso-input" type="text" id="i-extra-valor" placeholder="$0" inputmode="numeric"
+            style="flex:1;" oninput="fmtIngreso(this)" />
         </div>
       </div>
     </div>
@@ -1090,13 +1090,10 @@
 
     // ── Utils ─────────────────────────────────────────────────────────
     function cop(n) { return '$' + Math.round(n).toLocaleString('es-CO'); }
-    let _toastTimer = null;
     function toast(msg, tipo = '') {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + tipo;
-      if (_toastTimer) clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(() => { t.className = 'toast'; _toastTimer = null; }, 3000);
+      t.textContent = msg; t.className = 'toast show ' + tipo;
+      setTimeout(() => t.className = 'toast', 3000);
     }
     function setStatus(msg) { document.getElementById('sync-status').textContent = msg; }
 
@@ -1224,6 +1221,20 @@
 
     let extrasActuales = [];
 
+    // Formatea input como COP mientras escribe
+    function fmtIngreso(el) {
+      const raw = el.value.replace(/[^0-9]/g, '');
+      const num = parseInt(raw) || 0;
+      el.value = num > 0 ? '$' + num.toLocaleString('es-CO') : '';
+      actualizarTotalIngresos();
+    }
+
+    // Extrae número de un campo COP formateado
+    function parseCOP(id) {
+      const v = document.getElementById(id).value.replace(/[^0-9]/g, '');
+      return parseInt(v) || 0;
+    }
+
     function actualizarTotalIngresos() {
       if (controlData && controlData.ingresos && controlData.ingresos.totalNeto > 0) {
         document.getElementById('i-total').textContent = cop(controlData.ingresos.totalNeto);
@@ -1232,11 +1243,13 @@
 
     function renderIngresos(ing) {
       extrasActuales = ing.extras || [];
-      document.getElementById('i-sueldo').value = ing.sueldo || '';
-      document.getElementById('i-subsidio').value = ing.subsidio || '';
-      document.getElementById('i-people').value = ing.people || '';
+      // Mostrar valores con formato COP
+      const fmt = n => n > 0 ? '$' + Math.round(n).toLocaleString('es-CO') : '';
+      document.getElementById('i-sueldo').value = fmt(ing.sueldo);
+      document.getElementById('i-subsidio').value = fmt(ing.subsidio);
+      document.getElementById('i-people').value = fmt(ing.people);
 
-      // Eliminar extras anteriores del grid (tienen clase i-extra-item)
+      // Eliminar extras anteriores
       document.querySelectorAll('.i-extra-item').forEach(el => el.remove());
 
       // Insertar extras directamente en el grid, antes del div "Nuevo ingreso extra"
@@ -1245,10 +1258,15 @@
       extrasActuales.forEach((ex, idx) => {
         const div = document.createElement('div');
         div.className = 'ingreso-card i-extra-item';
+        div.style.position = 'relative';
         div.innerHTML = `
-          <div class="ingreso-label">✨ ${ex.nombre}</div>
-          <input class="ingreso-input" type="number" id="i-ex-${idx}" value="${ex.valor || 0}"
-                 placeholder="0" inputmode="numeric" />
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="ingreso-label" style="margin-bottom:0">✨ ${ex.nombre}</div>
+            <button onclick="borrarExtra(${idx})" style="background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;" title="Eliminar">×</button>
+          </div>
+          <input class="ingreso-input" type="text" id="i-ex-${idx}"
+                 value="${ex.valor > 0 ? '$' + Math.round(ex.valor).toLocaleString('es-CO') : ''}"
+                 placeholder="$0" inputmode="numeric" oninput="fmtIngreso(this)" />
         `;
         grid.insertBefore(div, nuevoExtraDiv);
       });
@@ -1258,13 +1276,36 @@
       actualizarTotalIngresos();
     }
 
+    async function borrarExtra(idx) {
+      if (!confirm('¿Eliminar "' + extrasActuales[idx].nombre + '"?')) return;
+      // Quitar del array y guardar sin ese extra
+      extrasActuales.splice(idx, 1);
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            accion: 'guardar_ingreso',
+            mes: mesBloque,
+            sueldo: parseCOP('i-sueldo'),
+            subsidio: parseCOP('i-subsidio'),
+            people: parseCOP('i-people'),
+            extras: extrasActuales
+          })
+        });
+        const d = await res.json();
+        if (d.ok) { toast('✓ Extra eliminado', 'ok'); await cargarControl(); }
+        else throw new Error(d.error);
+      } catch (e) { toast('Error al eliminar', 'err'); }
+    }
+
     async function guardarIngresos() {
       const extras = extrasActuales.map((ex, idx) => ({
         nombre: ex.nombre,
-        valor: parseFloat(document.getElementById('i-ex-' + idx).value) || 0
+        valor: parseInt(document.getElementById('i-ex-' + idx).value.replace(/[^0-9]/g, '')) || 0
       }));
       const nuevoNombre = document.getElementById('i-extra-nombre').value.trim();
-      const nuevoValor = parseFloat(document.getElementById('i-extra-valor').value) || 0;
+      const nuevoValor = parseInt(document.getElementById('i-extra-valor').value.replace(/[^0-9]/g, '')) || 0;
       if (nuevoNombre && nuevoValor > 0) extras.push({ nombre: nuevoNombre, valor: nuevoValor });
 
       try {
@@ -1273,10 +1314,10 @@
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
             accion: 'guardar_ingreso',
-            mes: mesBloque,  // ← usa mesBloque, no mesActual
-            sueldo: parseFloat(document.getElementById('i-sueldo').value) || 0,
-            subsidio: parseFloat(document.getElementById('i-subsidio').value) || 0,
-            people: parseFloat(document.getElementById('i-people').value) || 0,
+            mes: mesBloque,
+            sueldo: parseCOP('i-sueldo'),
+            subsidio: parseCOP('i-subsidio'),
+            people: parseCOP('i-people'),
             extras
           })
         });
