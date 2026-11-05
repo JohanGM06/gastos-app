@@ -851,3 +851,95 @@ body.dark .month-sel option {
     background: #1e2026;
     color: #e8eaed;
 }
+/* ── Toggle Débito/Crédito ── */
+.pago-toggle {
+    display: flex;
+    gap: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1.5px solid #d1d5db;
+    width: 100%;
+}
+
+.pago-btn {
+    flex: 1;
+    padding: 9px 0;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.pago-btn:first-child {
+    border-right: 1.5px solid #d1d5db;
+}
+
+.pago-btn.active[data-pago="Débito"] {
+    background: #2563eb;
+    color: #fff;
+}
+
+.pago-btn.active[data-pago="Crédito"] {
+    background: #7c3aed;
+    color: #fff;
+}
+
+/* ── Badge Débito/Crédito en lista ── */
+.pago-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 20px;
+    vertical-align: middle;
+    line-height: 1.6;
+}
+
+.badge-debito {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.badge-credito {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+/* Dark mode para toggle y badge */
+body.dark .pago-toggle {
+    border-color: #3c4043;
+}
+
+body.dark .pago-btn {
+    background: #2d2f36;
+    color: #9aa0a6;
+}
+
+body.dark .pago-btn:first-child {
+    border-right-color: #3c4043;
+}
+
+body.dark .pago-btn.active[data-pago="Débito"] {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+body.dark .pago-btn.active[data-pago="Crédito"] {
+    background: #6d28d9;
+    color: #fff;
+}
+
+body.dark .badge-debito {
+    background: #1e3a8a;
+    color: #93c5fd;
+}
+
+body.dark .badge-credito {
+    background: #3b0764;
+    color: #c4b5fd;
+}

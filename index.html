@@ -70,6 +70,13 @@
           <option value="Otros">💸 Otros</option>
         </select>
       </div>
+      <div class="inp-wrap" style="margin-bottom:12px">
+        <label>Forma de pago</label>
+        <div class="pago-toggle">
+          <button class="pago-btn active" data-pago="Débito" onclick="selPago(this)">🏦 Débito</button>
+          <button class="pago-btn" data-pago="Crédito" onclick="selPago(this)">💳 Crédito</button>
+        </div>
+      </div>
       <button class="btn-primary" id="g-btn" onclick="guardarGasto()">Guardar en Sheets ✓</button>
       <p class="hint">Tip: escribe "empanada 5000" y deja monto vacío</p>
     </div>
@@ -196,6 +203,12 @@
   <script src="scripts/savings.js"></script>
   <script src="scripts/theme.js"></script>
   <script src="scripts/init.js"></script>
+  <script>
+    function selPago(btn) {
+      document.querySelectorAll('.pago-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
 </body>
 
 </html>

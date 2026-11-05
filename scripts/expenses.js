@@ -14,13 +14,15 @@ function parsearGasto() {
     let desc = document.getElementById('g-desc').value.trim();
     let monto = parseFloat(document.getElementById('g-monto').value);
     const tipo = document.getElementById('g-tipo').value;
+    const pagoBtn = document.querySelector('.pago-btn.active');
+    const pago = pagoBtn ? pagoBtn.dataset.pago : 'Débito';
     if (!desc) return null;
     if (isNaN(monto)) {
         const m = desc.match(/(\d[\d.]*)$/);
         if (m) { monto = parseFloat(m[1]); desc = desc.replace(m[0], '').trim(); } else return null;
     }
     if (!desc || monto <= 0) return null;
-    return { desc: desc.charAt(0).toUpperCase() + desc.slice(1).toLowerCase(), monto, tipo };
+    return { desc: desc.charAt(0).toUpperCase() + desc.slice(1).toLowerCase(), monto, tipo, pago };
 }
 
 async function guardarGasto() {
@@ -29,7 +31,7 @@ async function guardarGasto() {
     const btn = document.getElementById('g-btn');
     btn.disabled = true; btn.textContent = 'Guardando...';
     try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ accion: 'guardar_gasto', mes: mesActual, desc: p.desc, monto: p.monto, tipo: p.tipo }) });
+        const r = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ accion: 'guardar_gasto', mes: mesActual, desc: p.desc, monto: p.monto, tipo: p.tipo, pago: p.pago }) });
         const d = await r.json();
         if (d.ok) {
             document.getElementById('g-desc').value = '';
@@ -94,9 +96,12 @@ function renderGastos() {
     if (!gastos.length) { lista.innerHTML = '<div class="empty">Sin gastos este mes</div>'; return; }
     lista.innerHTML = [...gastos].reverse().map(g => {
         const t = TIPOS[g.tipo] || TIPOS['Otros'];
+        const pago = g.pago || 'Débito';
+        const pagoClass = pago === 'Crédito' ? 'badge-credito' : 'badge-debito';
+        const pagoIcon = pago === 'Crédito' ? '💳' : '🏦';
         return `<div class="item" id="gi-${g.fila}">
       <div class="item-dot" style="background:${t.color}"></div>
-      <div class="item-info"><div class="item-name">${g.desc}</div><div class="item-sub">${t.emoji} ${g.tipo || 'Otros'}</div></div>
+      <div class="item-info"><div class="item-name">${g.desc}</div><div class="item-sub">${t.emoji} ${g.tipo || 'Otros'} &nbsp;<span class="pago-badge ${pagoClass}">${pagoIcon} ${pago}</span></div></div>
       <span class="item-amount">${cop(g.monto)}</span>
       <button class="btn-del" onclick="borrarGasto(${g.fila},'${g.desc.replace(/'/g, "\\'")}',document.getElementById('gi-${g.fila}'))">×</button>
     </div>`;
